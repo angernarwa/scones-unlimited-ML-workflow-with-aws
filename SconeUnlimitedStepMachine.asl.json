@@ -1,0 +1,36 @@
+{
+  "Comment": "A ML workflow for image classification for determining if an image stored in S3 is a bicycle or a motorbike",
+  "StartAt": "serialize Image Lambda Invoke",
+  "States": {
+    "serialize Image Lambda Invoke": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload.body",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "arn:aws:lambda:us-east-1:634691388842:function:serializeImageData:$LATEST"
+      },
+      "Next": "imageClassificationInference Lambda Invoke"
+    },
+    "imageClassificationInference Lambda Invoke": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload.body",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "arn:aws:lambda:us-east-1:634691388842:function:imageClassification:$LATEST"
+      },
+      "Next": "filter low inferences Lambda Invoke"
+    },
+    "filter low inferences Lambda Invoke": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload.body",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "arn:aws:lambda:us-east-1:634691388842:function:filterInferences:$LATEST"
+      },
+      "End": true
+    }
+  }
+}
